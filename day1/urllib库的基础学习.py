@@ -24,6 +24,17 @@ HEADERS = {
 }
 
 
+def write_file(html, file_name):
+    """
+    将html数据写入文件
+    :param html:
+    :param file_name:
+    :return:
+    """
+    with open(file_name, 'wb') as f:
+        f.write(html)
+
+
 def send_request(url):
     """
     根据请求的url和请求头等信息,发送请求并返回响应
@@ -38,26 +49,22 @@ def send_request(url):
     return response
 
 
-if __name__ == '__main__':
-    # 输入关键字
-    kw = input('输入关键字:')
-    # 输入起始及结束页码
-    pn_start = input('输入起始页码(从1开始):')
-    pn_end = input('输入结束页码:')
-
+def tieba_spider(keyword, page_start, page_end):
+    """
+    贴吧爬虫
+    :param keyword:
+    :param page_start:
+    :param page_end:
+    :return:
+    """
     base_url = 'https://tieba.baidu.com/f?'
-
     # 根据起始以及结尾的页码获得各个页码
-    pn_list = []
-    i = 0
-    while i < (int(pn_end) - int(pn_start)):
-        pn_list.append(50 * (int(pn_start) - 1) + 50 * i)
-        i += 1
+    for page in range(int(page_start), int(page_end)):
+        pn = (page - 1) * 50
 
-    for pn in pn_list:
         # 构造查询字典
         query_dict = {
-            'kw': kw,
+            'kw': keyword,
             'ie': 'utf-8',
             'pn': pn
         }
@@ -67,10 +74,17 @@ if __name__ == '__main__':
         # 构建完整的请求url
         full_url = base_url + query_str
         print(full_url)  # TODO:
-
         resp = send_request(full_url)
-        # 读取相应中的html数据
-        html = resp.read()
 
-        with open('results/' + str(pn) + '.html', 'wb') as f:
-            f.write(html)
+        # 读取相应中的html数据并写入到文件
+        html = resp.read()
+        file_name = 'results/' + '第' + str(page) + '页.html'
+        write_file(html, file_name)
+
+
+if __name__ == '__main__':
+    kw = input('输入要搜索的贴吧:')
+    pn_start = int(input('输入起始页码(从1开始):'))
+    pn_end = int(input('输入结束页码:'))
+
+    tieba_spider(kw, pn_start, pn_end)

@@ -1,0 +1,11 @@
+urllib库(python内置)
+
+    三个模块:
+        urllib.parse
+        urllib.request
+        urllib.response
+
+    常用函数:
+        urllib.request.urlopen()  # url打开并返回一个字节型response
+        urllib.parse.urlencode()  # 将一个字典转换为一个url查询字符串
+        urllib.parse.urlparse()  # 传入一个url对其进行解析
