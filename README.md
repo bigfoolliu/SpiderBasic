@@ -28,3 +28,14 @@ urllib.parse.urlparse()  # 传入一个url对其进行解析
 1. 使用相关的 Handler 处理器来创建特定功能的处理器对象;
 2. 然后通过 urllib.request.build_opener()方法使用这些处理器对象，创建自定义opener对象;
 3. 使用自定义的opener对象，调用open()方法发送请求
+
+**ProxyHandler处理器(代理设置)**
+
+使用代理IP,设置一些代理服务器，每隔一段时间换一个代理，就算IP被禁止，依然可以换个IP继续爬取.
+
+免费代理参考:
++ [西刺免费代理IP](http://www.xicidaili.com/)
++ [快代理免费代理](http://www.kuaidaili.com/free/inha/)
++ [Proxy360代理](http://www.proxy360.cn/default.aspx)
++ [全网代理IP](http://www.goubanjia.com/free/index.shtml)
+
