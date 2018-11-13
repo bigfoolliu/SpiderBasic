@@ -1,0 +1,35 @@
+两种不同页面的抓取策略:
+    静态页面: 数据直接保存在html中,直接通过url获取
+    动态页面: url不变,通过ajax向后台请求,获取数据必须抓包,即找出浏览器和服务器之间传递的数据(json或js或xml)
+
+免费短期代理网站举例：
+
+    西刺免费代理IP(http://www.xicidaili.com/)
+    快代理免费代理(http://www.kuaidaili.com/free/inha/)
+    Proxy360代理(http://www.proxy360.cn/default.aspx)
+    全网代理IP(http://www.goubanjia.com/free/index.shtml)
+
+    如果代理IP足够多，就可以像随机获取User-Agent一样，随机选择一个代理去访问网站.
+
+
+[
+    {
+        'rating': ['9.7', '50'],
+        'rank': 1,
+        'cover_url': 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2163632289.jpg',
+        'is_playable': False,
+        'id': '4167113',
+        'types': ['纪录片', '音乐'],
+        'regions': ['日本'],
+        'title': '久石让在武道馆：与宫崎骏动画一同走过的25年',
+        'url': 'https://movie.douban.com/subject/4167113/',
+        'release_date': '2008-08-05',
+        'actor_count': 1,
+        'vote_count': 10544,
+        'score': '9.7',
+        'actors': ['久石让'],
+        'is_watched': False
+    },
+
+    ...
+]
