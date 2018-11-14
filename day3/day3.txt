@@ -1,0 +1,20 @@
+Unicode字符集中中文的范围:
+    \u4e00 至 \u9fa5
+    可以使用该范围来首先将带有中英文的文本转换为Unicode格式, 然后匹配文本中的中文.
+    eg:
+        pattern = re.compile(ur'[\u4e00-\u9fa5]+')  # u表示unicode, r表示使用原始字符串
+
+取div标签内部的内容:
+    # 启用DOTALL模式,让 . 也可以匹配换行符等
+    pattern = re.compile(r'<div class="class_name">(.*?)<div>', re.S)
+
+遇见不认识的字符可以首先转换为Unicode, 然后查找该 Unicode对应的信息.
+
+XPath:
+    1. 永远返回列表[]
+    2. 匹配下标从1开始
+
+快速删除本地文件夹中的某一类型的文件:
+    linux: rm *.jpg
+    windows: del *.jpg
+

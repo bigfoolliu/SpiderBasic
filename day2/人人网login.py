@@ -15,7 +15,7 @@ import urllib.parse
 import http.cookiejar
 
 
-def send_reqest():
+def send_request():
     """
     发送请求
     :return:
@@ -46,5 +46,5 @@ def send_reqest():
 
 
 if __name__ == '__main__':
-    resp = send_reqest()
+    resp = send_request()
     print(resp.read().decode('utf-8'))

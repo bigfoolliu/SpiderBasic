@@ -169,3 +169,36 @@ response6 = requests.get(url, verify=True)
 response7 = requests.get(url, verify=False)
 ```
 
+## 结构化数据和非结构化数据提取
+
+- 结构化数据(先有结构后有数据, 如html, json, xml)
+- 非结构化数据(先有数据后有结构, 如txt, js, css, 图片, 音视频)
+
+**正则表达式re模块**
+
+[正则表达式参考手册](http://tool.oschina.net/uploads/apidocs/jquery/regexp.html)
+[正则表达式教程](http://www.runoob.com/regexp/regexp-syntax.html)
+
+```python
+import re
+
+pattern = re.compile(r'^$')  # 创建一个模式pattern对象
+result = pattern.findall('hello\nworld')  # 利用pattern对象来查找,返回一个列表
+
+"""
+pattern对象的其他方法:
+match 方法：从起始位置开始查找，一次匹配, 可以指定位置, m.group()返回具体的数据
+search 方法：从任何位置开始查找，一次匹配
+findall 方法：全部匹配，返回列表
+finditer 方法：全部匹配，返回迭代器
+split 方法：分割字符串，返回列表
+sub 方法：替换
+"""
+```
+
+**XPath**
+
+XPath(XML Path Language)是一门在XML文档中查找信息的语言,可用来在XML文档中对元素和属性进行遍历。
+
+[XPath教程](http://www.w3school.com.cn/xpath/index.asp)
+
