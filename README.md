@@ -117,16 +117,19 @@ requests库基本的一些用法
 """
 import requests
 
-# 发送基本的get请求
-response1 = requests.get(url='https://www.baidu.com/')
-
 # 添加参数
+url = 'https://www.baidu.com/'
 kw = {'wd':'长城'}
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) \
 Chrome/54.0.2840.99 Safari/537.36"}
-# params 接收一个字典或者字符串的查询参数，字典类型自动转换为url编码，不需要urlencode()
-response2 = requests.get("http://www.baidu.com/s?", params = kw, headers = headers)
+# 根据协议类型，选择不同的代理
+proxies = {"http": "http://12.34.56.79:9527"}
 
+# 发送基本的get请求
+response1 = requests.get(url=url)
+# params 接收一个字典或者字符串的查询参数，字典类型自动转换为url编码，不需要urlencode()
+response2 = requests.get("http://www.baidu.com/s?", params=kw, headers=headers)
+     
 # 查看响应内容,response.text 返回的是Unicode格式的数据
 print(response2.text)
 # 查看响应内容，response.content返回的字节流数据(常用)
@@ -137,5 +140,32 @@ print(response2.url)
 print(response2.encoding)
 # 查看响应码
 print(response2.status_code)
+
+# 发送基本的post请求
+# 返回的结果直接转换为python数据类型 
+response3 = requests.post(url, data=kw, headers=headers).json()
+
+# 使用代理(proxies参数)
+response4 = requests.get(url, proxies=proxies)
+
+# cookies
+# 如果一个响应中包含了cookie，那么我们可以利用 cookies参数拿到,其返回的是一个cookiejar对象
+cookie_jar = response1.cookies
+# 将cookiejar对象转为字典
+cookie_dict = requests.utils.dict_from_cookiejar(cookie_jar)
+
+# session
+# 这个对象代表一次用户会话：从客户端浏览器连接服务器开始，到客户端浏览器与服务器断开
+ssion = requests.session()
+# 发送附带用户名和密码的请求，并获取登录后的Cookie值，保存在ssion里
+ssion.post("http://www.renren.com/PLogin.do", data=kw)
+# ssion包含用户登录后的Cookie值，可以直接访问那些登录后才可以访问的页面
+response5 = ssion.get("http://www.renren.com/410043129/profile")
+
+# 处理HTTPS请求 SSL证书验证
+# 要想检查某个主机的SSL证书，你可以使用 verify 参数（也可以不写）
+response6 = requests.get(url, verify=True)
+# 如果SSL证书验证不通过，或者不信任服务器的安全证书，则会报出SSLError,跳过验证即可
+response7 = requests.get(url, verify=False)
 ```
 
