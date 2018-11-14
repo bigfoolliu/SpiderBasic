@@ -82,7 +82,7 @@ response = proxy_opener.open()
           从FileCookieJar派生而来，创建与Mozilla浏览器 cookies.txt兼容的FileCookieJar实例。
     LWPCookieJar (filename,delayload=None,policy=None)：
           从FileCookieJar派生而来，创建与libwww-perl标准的 Set-Cookie3 文件格式兼容的FileCookieJar实例。
-    
+
     # python3创建一个CookieJar对象
     cookiejar = http.cookiejar.CookieJar()
   
@@ -93,5 +93,49 @@ response = proxy_opener.open()
     ```
 + HTTPCookieProcessor处理器：主要作用是处理这些cookie对象，并构建handler对象。
 
-    ```python
-    ```
+```python
+import urllib.request
+import http.cookiejar
+
+# 1. 创建一个CookJar对象来保存cookie
+cookie_jar = http.cookiejar.CookieJar()
+# 2. 使用HTTPCookieProcessor来处理cookie_jar对象
+cookie_handler = urllib.request.HTTPCookieProcessor(cookie_jar)
+# 3. 创建opener
+cookie_opener = urllib.request.build_opener(cookie_handler)
+# 4. 使用opener来打开url发送post请求
+response = cookie_opener.open()
+```
+
+**Requests模块**
+
+[参考文档](http://www.python-requests.org/en/master/)
+
+```python
+"""
+requests库基本的一些用法
+"""
+import requests
+
+# 发送基本的get请求
+response1 = requests.get(url='https://www.baidu.com/')
+
+# 添加参数
+kw = {'wd':'长城'}
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) \
+Chrome/54.0.2840.99 Safari/537.36"}
+# params 接收一个字典或者字符串的查询参数，字典类型自动转换为url编码，不需要urlencode()
+response2 = requests.get("http://www.baidu.com/s?", params = kw, headers = headers)
+
+# 查看响应内容,response.text 返回的是Unicode格式的数据
+print(response2.text)
+# 查看响应内容，response.content返回的字节流数据(常用)
+print(response2.content)
+# 查看完整url地址
+print(response2.url)
+# 查看响应头部字符编码
+print(response2.encoding)
+# 查看响应码
+print(response2.status_code)
+```
+
