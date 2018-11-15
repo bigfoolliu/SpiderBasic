@@ -14,24 +14,25 @@ https://www.neihan8.com/article/index_3.html
 需求:
 从第一页开始爬取,按下enter爬取一页,按q结束爬取
 
-需要用正则表达式从以下的标签中提取出其中的内容:
+<div class="text-column-list mt10">
 
-<div class="text-column-item box box-790">
-        <h3><a href="/article/209253.html" class="title" title="叫警察">叫警察</a></h3>
-        <div class="desc"> 　　年轻人在饭店吃霸王餐，吃完了不付钱就想离开，被服务员逮住。　　服务员威胁说：“5分钟内，你再不付钱，
-        我就叫警察了。”　　年轻人无所谓地说：“你以为警察来了会替我付钱吗?</div>
+    <div class="text-column-item box box-790">
+        <h3><a href="/article/209272.html" class="title" title="让人敬佩得目瞪口呆啊孩子">让人敬佩得目瞪口呆啊孩子</a></h3>
+        <div class="desc"> 　　几个人在高尔夫更衣室，一手机响很久，一男人按了免提键。　　女：亲爱的，你在俱乐部吗?　　男：在。　　女：
+        我看到一辆宝马才不到两百万。　　男人：买 。　　女：还有那个楼盘又放
+        </div>
         <div class="bottom">
-              <div class="time"><time class="timeago" datetime="2017-03-30.0"></time><i>属于：<a href="/article/"
+              <div class="time"><time class="timeago" datetime="2017-03-30.0">2年前</time><i>属于：<a href="/article/"
               class="title">内涵段子</a></i></div>
-                <div class="good" >17</div>
-                <div class="bad" >11</div>
-                <div class="view" >9250</div>
-            </div>
-      </div>
+                <div class="good">92</div>
+                <div class="bad">20</div>
+                <div class="view">18473</div>
+        </div>
+    </div>
 
-解析内容时需要将部分的数据删除:
- 　　乘地铁遇到个牛人。　　地铁上，一哥们儿的铃声大作，众乘客一听： “爷爷，那孙子又给您来电话了&amp;hellip; 爷爷，
- 那孙子又给您来电话了&amp;hellip; 爷爷，那孙子又给您来电话了。”
+    ...
+
+</div>
 """
 import re
 
@@ -49,49 +50,54 @@ class NeihanSpider(object):
             Chrome/70.0.3538.77 Safari/537.36'
         }
         self.page = 1
-        self.pattern = re.compile(r'<div class="desc">(.+?)</div>')  # 构建一个匹配段子内容的正则表达式
+        # 匹配网页中所有段子内容
+        # 启用DOTALL模式，让 . 也可以匹配换行符
+        self.pattern_title = re.compile(r'<a href=.*? class="title" title=.*?>(.*?)</a>', re.S)
+        self.pattern_content = re.compile(r'<div class="text-column-item box box-790">.*?<div class="desc">(.*?)</div>', re.S)
 
-        # 匹配网页中无用字符：
-        # \s 表示空白字符（如\n \r 空格等）
-        # <.*?> 表示标签 （如 <p> <br>等）
-        # &.*?; 表示HTML实体字符（如 &nbsp;等）
-        # 　 或 u"\u3000".encode("utf-8") 表示中文全角空格，无法被\s匹配
-        # self.pattern_content = re.compile(r"\s|<.*?>|&.*?;|　")
-        self.pattern_content = re.compile(r"\s|<.*?>|&.*?;|" + u"\u3000")
-
-    def send_request(self, url):
+    def send_request(self, url, headers):
         """
         发送请求,返回响应
         :param url:
-        :return: response 字节流
+        :param headers:
+        :return:
         """
-        response = requests.get(url, headers=self.headers)
+        print('[INFO]: 开始发送响应 {}'.format(url))
+        response = requests.get(url, headers=headers)
         return response
 
     def parse_content(self, response):
         """
-        解析response中的内容
-        :param response: 字节流
-        :return: list
-        """
-        html = response.content.decode('utf-8')
-        content_list = self.pattern.findall(html)
-        return content_list
-
-    def save_file(self, content_list, file_name):
-        """
-        将内容列表存储至文件
-        :param content_list:
-        :param file_name:
+        解析页面,获取其中的内容
+        :param response:
         :return:
         """
-        print('[INFO]: 开始向{}写入数据...'.format(file_name))
-        with open(file_name, 'a') as f:
-            for content in content_list:
-                # 将单条记录content中的无用内容删除掉,即数据清洗
-                content_result = self.pattern_content.sub('', content)
-                f.write(content_result)
-                f.write('\n')
+        print('[INFO]: 开始解析当前页面...')
+        html = response.content.decode('utf-8')
+        title_list = self.pattern_title.findall(html)
+        content_list = self.pattern_content.findall(html)
+        # 将内容列表元素中的\u3000字符替换为空
+        content_result_list = []
+        for content in content_list:
+            content_result = re.sub(r'\u3000', '', content)
+            content_result_list.append(content_result)
+
+        # 用列表推导式将标题和内容拼接为完整的段子
+        result_list = [title_list[i] + '  ' + content_result_list[i] for i in range(len(title_list))]
+
+        return result_list
+
+    def save_file(self, result_list):
+        """
+        保存文本
+        :param result_list:
+        :return:
+        """
+        with open('neihan.txt', 'a') as f:
+            f.write('Page{}'.format(self.page) + '\n')
+            for result in result_list:
+                f.write(result + '\n')
+            f.write('\n\n')
 
     def run(self):
         """
@@ -99,27 +105,23 @@ class NeihanSpider(object):
         :return:
         """
         while True:
-            # 输入的为q或者Q时结束爬取
             if input('输入(q结束):').lower() == 'q':
                 break
 
-            # 输入换行时开始爬取一页的内容
-            if self.page == 1:
-                full_url = self.basic_url + '.html'
             else:
-                full_url = self.basic_url + '_' + str(self.page) + '.html'
+                # 根据是否为首页
+                if self.page == 1:
+                    full_url = self.basic_url + '.html'
+                else:
+                    full_url = self.basic_url + '_' + str(self.page) + '.html'
 
-            response = None
-            try:
-                response = self.send_request(full_url)
-                print('[INFO]: 发送请求至{}成功...'.format(full_url))
-            except Exception as e:
-                print('[INFO]: 请求发生异常{}'.format(e))
+                response = self.send_request(full_url, self.headers)
+                print('[INFO]: 响应成功...')
 
-            content_list = self.parse_content(response)
+                result_list = self.parse_content(response)
+                # print(result_list)
 
-            file_name = 'neihan8/Page' + str(self.page) + '.txt'
-            self.save_file(content_list, file_name)
+                self.save_file(result_list)
 
             self.page += 1
 
