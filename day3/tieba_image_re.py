@@ -1,5 +1,5 @@
 #!-*-coding:utf-8-*-
-# !@Date: 2018/11/14 21:50
+# !@Date: 2018/11/15 12:14
 # !@Author: Liu Rui
 # !@github: bigfoolliu
 
@@ -33,11 +33,11 @@ https://tieba.baidu.com/p/5950316508
 
 具体帖子中发表的图片的标签:
 <img class="BDE_Image" src="https://imgsa.baidu.com/forum/w%3D580/sign=61b03229a0345982c58ae59a3cf5310b/
-d17eadfb43166d22b927b3c94b2309f79152d2a5image.jpg" size="107599" changedsize="true" width="560" height="840">
+d17eadfb43166d22b927b3c94b2309f79152d2a5.jpg" size="107599" changedsize="true" width="560" height="840">
 
 需要获取图片的src并将图片下载保存
 """
-from lxml import etree
+import re
 import requests
 
 
@@ -47,15 +47,20 @@ class TiebaImageSpider(object):
     """
     def __init__(self):
         self.base_url = 'https://tieba.baidu.com/f?'
-        self.page_base_url = 'https://tieba.baidu.com'
+        self.page_base_url = 'https://tieba.baidu.com/p'
         self.page = 1
         self.query_dict = {
             'ie': 'utf-8',
             'kw': input('请输入贴吧名:'),
             'pn': str((self.page - 1) * 50)
         }
-        # TODO: Chrome浏览器对百度贴吧有优化,所有的帖子都在注释里,需要用ie的请求头才能用 xpath 提取
-        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko"}
+        # TODO: 使用正则则不需要考虑网站根据不同浏览器做的优化
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                    Chrome/70.0.3538.77 Safari/537.36'
+        }
+        self.pattern_page = re.compile(r'rel="noreferrer" href="/p(.*?)" title')
+        self.pattern_image = re.compile(r'<img class="BDE_Image" src="(.*?)" size')
 
     def send_request(self, url, query_dict=None, headers=None):
         """
@@ -72,15 +77,13 @@ class TiebaImageSpider(object):
     def parse_page(self, response):
         """
         解析当前页面,返回所有的帖子列表
-        :param response:
         :return:
         """
         print('[INFO]: 开始解析页面...')
-
         html = response.content.decode('utf-8')
-        html_obj = etree.HTML(html)
-        page_link_list = html_obj.xpath("//a[@class='j_th_tit ']/@href")
 
+        # 改为使用正则表达式
+        page_link_list = self.pattern_page.findall(html)
         return page_link_list
 
     def parse_image(self, response):
@@ -92,8 +95,7 @@ class TiebaImageSpider(object):
         print('[INFO]: 开始解析帖子中的图片链接...')
 
         html = response.content.decode('utf-8')
-        html_obj = etree.HTML(html)
-        image_url_list = html_obj.xpath("//img[@class='BDE_Image']/@src")
+        image_url_list = self.pattern_image.findall(html)
 
         return image_url_list
 
@@ -126,6 +128,8 @@ class TiebaImageSpider(object):
                     page_url = self.page_base_url + page
                     page_response = self.send_request(page_url)
                     image_url_list = self.parse_image(page_response)
+
+                    # print(image_url_list)
 
                     for image_url in image_url_list:
                         image_response = self.send_request(image_url)
