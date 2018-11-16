@@ -109,9 +109,12 @@ class TencentSpider(object):
         :param job_list:
         :return:
         """
-        json_str = json.dumps(job_list)
-        with open('tencent.json', 'w') as f:
-            f.write(json_str)
+        # json_str = json.dumps(job_list)
+        # with open('tencent.json', 'w') as f:
+        #     f.write(json_str)
+
+        # 使用json.dump更快速的将python字符串写入到文件中
+        json.dump(job_list, open('tencent.json', 'w'))
 
     def run(self):
         """
