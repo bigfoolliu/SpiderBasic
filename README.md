@@ -129,7 +129,7 @@ proxies = {"http": "http://12.34.56.79:9527"}
 response1 = requests.get(url=url)
 # params 接收一个字典或者字符串的查询参数，字典类型自动转换为url编码，不需要urlencode()
 response2 = requests.get("http://www.baidu.com/s?", params=kw, headers=headers)
-     
+
 # 查看响应内容,response.text 返回的是Unicode格式的数据
 print(response2.text)
 # 查看响应内容，response.content返回的字节流数据(常用)
@@ -202,3 +202,126 @@ XPath(XML Path Language)是一门在XML文档中查找信息的语言,可用来�
 
 [XPath教程](http://www.w3school.com.cn/xpath/index.asp)
 
+```python
+"""
+lxml模块通过xpath来进行数据解析的基本步骤
+
+xpath核心语法:
+/       从根节点选取
+//      从匹配选择的当前节点选择文档中的节点，而不考虑它们的位置
+@       选取属性
+[]      当前节点下的某些属性
+..      选取当前节点的父节点
+"""
+from lxml import etree
+
+
+def parse(response):
+    html = response.content
+    
+    # 构造一个HTML的可操作对象
+    html_obj = etree.HTML(html)
+    # 通过xpath函数查找,返回的是一个列表
+    page_link_list = html_obj.xpath("//a[@class='j_th_tit ']/@href")
+    
+    return page_link_list
+```
+
+**CSS 选择器：BeautifulSoup4**
+
+lxml只会局部遍历, Beautiful Soup是基于HTML DOM的，会载入整个文档, 性能相对较低.
+BeautifulSoup 用来解析 HTML比较简单，API非常人性化，支持CSS选择器、Python标准库中的HTML解析器，也支持 lxml的 XML解析器.
+
+[bs4官方文档](http://beautifulsoup.readthedocs.io/zh_CN/v4.4.0/)
+
+```python
+"""
+bs4使用基本流程:
+
+Beautiful Soup将复杂HTML文档转换成一个复杂的树形结构,每个节点都是Python对象,所有对象可以归纳为4种:
+Tag                 也就是HTML中的一个个标签,两个重要的属性，是 name(名字) 和 attrs(属性)
+NavigableString     代表获取标签内部的文字对象
+BeautifulSoup
+Comment
+"""
+from bs4 import BeautifulSoup
+
+html = '<div class="title"><a src="https://www.baidu.com/"></a></div>'
+
+# 构造一个BS对象,并指定解析器为lxml
+soup = BeautifulSoup(html, 'lxml') 
+
+print(soup.prettify())  # 以bs的格式格式化输出soup对象的内容
+
+# 获得所有class为title或者content的div标签, 返回结果为列表
+node_list = soup.find_all('div', {'class': ['title', 'content']})
+# 获得a标签的列表
+node_list2 = soup.select('a')
+# 获得首个a标签的所有属性
+attrs_list = soup.select('a')[0].attrs
+# 获得首个a标签的文本
+text1 = soup.select('a')[0].text  # 如果内容为注释则不会获取
+text2 = soup.select('a')[0].string  # 即使是注释也会获得文本
+```
+
+**数据提取之JSON与JsonPATH**
+
+python内置模块json的相关操作
+
+```python
+"""
+使用python自带的json模块将python对象与json字符串进行转换存储
+
+对照表
+json        python
+object      dict
+array       list
+string      unicode
+number(int) int, long
+number(real) float
+true        True
+false       False
+null        None
+"""
+import json
+
+# 实现python类型转化为json字符串，返回一个str对象 把一个Python对象编码转换成Json字符串
+# 处理中文时，添加参数 ensure_ascii=False 来禁用ascii编码 
+str_list1 = [1, 2, 3] 
+json.dumps(str_list1)  # 结果为json字符串: '[1, 2, 3]'
+
+# loads()把Json格式字符串解码转换成Python对象
+str_list2 = '[1, 2, 3]'
+json.loads(str_list2)  # 结果为python列表: [1, 2, 3]
+
+# dump()将Python内置类型序列化为json对象后写入文件
+dictStr = {"city": "北京", "name": "大刘"}
+json.dump(dictStr, open("dictStr.json","w"), ensure_ascii=False)
+
+# 读取文件中json形式的字符串元素 转化成python类型
+strDict = json.load(open("dictStr.json"))
+```
+
+**JsonPath**
+
+JsonPath 是一种信息抽取类库，是从JSON文档中抽取指定信息的工具.
+[JsonPath官方文档](Jhttp://goessner.net/articles/JsonPath/)
+
+```text
+JsonPath与XPath语法对比：
+Json结构清晰，可读性高，复杂度低，非常容易匹配，下表中对应了XPath的用法。
+
+XPath	JSONPath	描述
+/	    $	        根节点
+.	    @	        现行节点
+/	    .or[]	    取子节点
+..	    n/a	        取父节点，Jsonpath未支持
+//	    ..	        就是不管位置，选择所有符合条件的条件
+*	    *	        匹配所有元素节点
+@	    n/a	        根据属性访问，Json不支持，因为Json是个Key-value递归结构，不需要属性访问。
+[]	    []	        迭代器标示（可以在里边做简单的迭代操作，如数组下标，根据内容选值等）
+|	    [,]	        支持迭代器中做多选。
+[]	    ?()	        支持过滤操作.
+n/a	    ()	        支持表达式计算
+()	    n/a	        分组，JsonPath不支持
+```

@@ -1,0 +1,16 @@
+bs4
+
+BeautifulSoup
+
+from bs4 import BeautifulSoup
+# 构建一个bs对象
+soup = BeautifulSoup(html)
+
+# 找到所有的类为odd 或 even的tr标签
+soup.find_all('tr', {'class': ['odd', 'even']})
+
+
+# 抓取到的像 Unicode 字符的字符串,解码为真正的 Unicode 字符
+s = '\u6df4\u5733'
+s.decode('unicode-escape')
+
