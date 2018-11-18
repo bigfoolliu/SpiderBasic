@@ -33,8 +33,8 @@ def json_to_csv():
     csv_writer = csv.writer(csv_file)
     # 先写入表头字段数据
     csv_writer.writerow(key_data)
-    # 写入表的值数据
-    csv_writer.writerow(value_data)
+    # 写入表的值数据(注意使用writerows是写入多行数据)
+    csv_writer.writerows(value_data)
 
     # 按照后打开先关闭的原则关闭文件对象
     csv_file.close()

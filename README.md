@@ -325,3 +325,93 @@ XPath	JSONPath	描述
 n/a	    ()	        支持表达式计算
 ()	    n/a	        分组，JsonPath不支持
 ```
+
+```python
+"""
+通过jsonpath模块中的jsonpath函数来进行数据抽取
+"""
+from jsonpath import jsonpath
+
+python_obj = [{}, {}]  # json字符串转换后的python对象
+result_list = jsonpath(python_obj, '$..name')  # 找到根节点下的所有匹配的key值为name的
+```
+
+**MongoDB**
+
+可扩展的高性能，开源，模式自由，面向文档的NoSQL，基于分布式文件存储，由 C++ 语言编写.
+使用的是内存映射存储引擎，它会把磁盘IO操作转换成内存操作.
+既拥有Key-Value存储方式的高性能和高度伸缩性，也拥有传统的RDBMS系统的丰富的功能.
+
+[MongoDB官方文档](https://docs.mongodb.com/)
+[MongoDB中文社区](http://www.mongoing.com/)
+
+常见数据类型:
+
+```text
+ObjectID    文档id
+String      字符串(utf-8)
+Boolean     布尔值,true或false
+Integer     整数可以是32位或64位，这取决于服务器
+Double      浮点值
+Arrays      数组或列表，多个值存储到一个键    
+Object      用于嵌入式的文档，即一个值为一个文档
+Null        存储Null值
+Timestamp   时间戳，表示从1970-1-1到现在的总秒数
+Date        日期, 存储当前日期或时间的UNIX时间格式, 创建日期语句: Date('2017-12-20'))
+```
+
+常用命令:
+
+```text
+数据库命令:
+db  # 查看当前使用的数据库
+show dbs  # 查看所有的数据库
+user db1  # 切换数据库为db1
+db.dropDatabase()  # 删除当前使用的数据库
+
+集合命令:
+db.createCollection("stu")  # 创建一个集合stu(类似表的概念)
+show collections  # 展示所有的集合
+db.stu.drop()  # 删除集合stu
+
+插入数据命令:
+db.stu.insert({name: 'liu', age: 20})
+
+更新数据命令:
+db.stu.update({age: 20}, {age: 21})  # 全文档更新
+db.stu.update({age: 20}, {$set: {age: 21}})  # 指定属性更新，通过操作符$set
+db.stu.update({age: 20}, {$set: {gender: 'man'}}, {multi: true})  # 修改多条匹配到的数据
+
+保存数据命令:
+db.stu.save({_id: 2, name: liu})  # _id存在则修改,不存在则创建
+
+查询数据命令:
+db.stu.find({name: 'liu'})  # 查询所有符合条件的
+db.stu.findOne({name: 'liu'})  # 查询符合条件的第一个
+
+比较运算符:
+默认     等于
+$gt     大于
+$gtq    大于等于
+$lt     小于
+$ltq    小于等于
+$ne     不等于
+
+逻辑运算符:
+$and    与
+$or     或
+
+范围运算符:
+$in     在
+$nin    不在
+
+支持正则表达式:
+$regex      正则表达式
+$options    其他参数
+$i          大小写忽略
+$s          换行符忽略
+db.stu.find({name: {$regex: '^Big'}, $options: '$i'})
+
+自定义函数查询:
+
+```
