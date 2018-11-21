@@ -364,54 +364,200 @@ Date        日期, 存储当前日期或时间的UNIX时间格式, 创建日期
 
 ```text
 数据库命令:
-db  # 查看当前使用的数据库
-show dbs  # 查看所有的数据库
-user db1  # 切换数据库为db1
-db.dropDatabase()  # 删除当前使用的数据库
+    db  # 查看当前使用的数据库
+    show dbs  # 查看所有的数据库
+    user db1  # 切换数据库为db1
+    db.dropDatabase()  # 删除当前使用的数据库
 
 集合命令:
-db.createCollection("stu")  # 创建一个集合stu(类似表的概念)
-show collections  # 展示所有的集合
-db.stu.drop()  # 删除集合stu
+    db.createCollection("stu")  # 创建一个集合stu(类似表的概念)
+    show collections  # 展示所有的集合
+    db.stu.drop()  # 删除集合stu
 
 插入数据命令:
-db.stu.insert({name: 'liu', age: 20})
+    db.stu.insert({name: 'liu', age: 20})
 
 更新数据命令:
-db.stu.update({age: 20}, {age: 21})  # 全文档更新
-db.stu.update({age: 20}, {$set: {age: 21}})  # 指定属性更新，通过操作符$set
-db.stu.update({age: 20}, {$set: {gender: 'man'}}, {multi: true})  # 修改多条匹配到的数据
+    db.stu.update({age: 20}, {age: 21})  # 全文档更新
+    db.stu.update({age: 20}, {$set: {age: 21}})  # 指定属性更新，通过操作符$set
+    db.stu.update({age: 20}, {$set: {gender: 'man'}}, {multi: true})  # 修改多条匹配到的数据
 
 保存数据命令:
-db.stu.save({_id: 2, name: liu})  # _id存在则修改,不存在则创建
+    db.stu.save({_id: 2, name: liu})  # _id存在则修改,不存在则创建
 
 查询数据命令:
-db.stu.find({name: 'liu'})  # 查询所有符合条件的
-db.stu.findOne({name: 'liu'})  # 查询符合条件的第一个
+    db.stu.find({name: 'liu'})  # 查询所有符合条件的
+    db.stu.findOne({name: 'liu'})  # 查询符合条件的第一个
+    db.stu.find({age: {$gt: 10}}).skip(1)  # 跳过结果中的第一个,显示其他结果
+    db.stu.find({age: {$gt: 10}}).limit(2)  # 显示结果的前两个
+    db.stu.find({age: {$gt: 10}}).skip(1).limit(2)  # 找到结果中跳过第一个显示接下来的2个,且skip与limit顺序不影响结果
+
+投影显示:
+    指定显示字段和不显示字段, 指定find第二个参数,通过1和true指定显示, 0和false指定不显示, 默认_id一定显示
+    db.stu.find({}, {name: 1, hometown: false})  # 结果中显示name, 不显示hometown
+
+sort()排序:
+    通常按照数字排序, 字符串的话按照首字母的ASCII码值排序
+    db.stu.find().sort({age: 1})  # 结果中按照年龄升序显示
+
+count()统计个数:
+    db.stu.find({age: {$lt: 20}}).count()  # 计算年龄小于20的结果的个数
+    db.stu.count({age: {$lt: 20}})  # 第二种用法
+
+distinct()去重显示:
+    db.stu.distinct('hometown')  # 显示一个hometown的列表
+    db.stu.distinct('hometown', {age: {$lt: 20}})  # 添加条件的去重
+
 
 比较运算符:
-默认     等于
-$gt     大于
-$gtq    大于等于
-$lt     小于
-$ltq    小于等于
-$ne     不等于
+    默认     等于
+    $gt     大于
+    $gtq    大于等于
+    $lt     小于
+    $ltq    小于等于
+    $ne     不等于
 
 逻辑运算符:
-$and    与
-$or     或
+    $and    与
+    $or     或
 
 范围运算符:
-$in     在
-$nin    不在
+    $in     在
+    $nin    不在
 
 支持正则表达式:
-$regex      正则表达式
-$options    其他参数
-$i          大小写忽略
-$s          换行符忽略
-db.stu.find({name: {$regex: '^Big'}, $options: '$i'})
+    $regex      正则表达式
+    $options    其他参数
+    $i          大小写忽略
+    $s          换行符忽略
+    db.stu.find({name: {$regex: '^Big'}, $options: '$i'})
 
 自定义函数查询:
+    db.stu.find({$where : function() { return this.age != 20 }
 
+
+聚合运算:
+    db.集合名称.aggregate([ {管道 : {表达式}} ])
+    第一个管道的输出将作为第二个管道的输入
+    
+    常用管道：
+        $group：将集合中的文档分组，可用于统计结果
+        $match：过滤数据，只输出符合条件的文档
+        $project：修改输入文档的结构，如重命名、增加、删除字段、创建计算结果
+        $sort：将输入文档排序后输出
+        $limit：限制聚合管道返回的文档数
+        $skip：跳过指定数量的文档，并返回余下的文档
+        $unwind：将数组类型的字段进行拆分
+    
+    aggregate([{$match}, {$group}, {}])
+    
+    $group分组统计方法
+        $sum：计算总和，$sum:1同count表示计数
+        $avg：计算平均值
+        $min：获取最小值
+        $max：获取最大值
+        $push：在结果文档中插入值到一个数组中
+        $first：根据资源文档的排序获取第一个文档数据
+        $last：根据资源文档的排序获取最后一个文档数据
+    
+    # 按年龄分组，输出各组的年龄的总和
+    db.stu.aggregate([
+        {
+            $group: {
+                _id: “$gender”,  # 指定分组的依据
+                sum_age: {$sum: “$age”}  # 指定的输出字段，结果为是对上方分组的age的求和
+            }
+        }
+    ])
+    
+    # 查询年龄大于20的男生、女生人数
+    db.stu.aggregate([
+        {$match:{age:{$gt:20}}},
+        {$group:{_id:'$gender',counter:{$sum:1}}}  # $sum后接1表示统计个数
+    ])
+    
+    # 查询学生的姓名、年龄
+    db.stu.aggregate([
+        {$project:{_id:0,name:1,age:1}}
+    ])
+
+
+索引：
+    使用explain()命令进行查询性能分析(在数据量比较大的情况下)
+    db.t1.find({name:'test10000'}).explain('executionStats')
+    
+    db.t1.ensureIndex({name:1},{"unique":true})  # 创建索引，1表示升序，-1表示降序,建立唯一索引，实现唯一约束的功能
+    db.t1.getIndexes()  # 查看文档所有索引
+    db.t1.dropIndexes('索引名称')  # 删除索引
+
+
+数据库备份与恢复：
+    备份：
+        mongodump -h dbhost -d dbname -o dbdirectory
+        -h：服务器地址，也可以指定端口号
+        -d：需要备份的数据库名称
+        -o：备份的数据存放位置，此目录中存放着备份出来的数据
+    恢复：
+        mongorestore -h dbhost -d dbname --dir dbdirectory
+        -h：服务器地址
+        -d：需要恢复的数据库实例
+        --dir：备份数据所在位置
+```
+
+在python代码中如何实现：
+
+```python
+"""
+在python中连接和操作MongoDB数据库
+基本上的语法和直接操作相同，注意：
+    1. 相同的方法，如sort的处理
+    2. 返回的对象可迭代的处理
+    3. 参数需要加引号
+"""
+import pymango
+
+client = pymango.MongoClient()  # 创建一个客户端对象，默认连接本地的数据库(可以指定ip和端口)
+db = client.test  # 创建一个数据库对象
+stu = db.stu  # 创建一个collections集合对象
+
+
+"""
+主要方法如下
+    insert_one：加入一条文档对象
+    insert_many：加入多条文档对象
+    find_one：查找一条文档对象
+    find：查找多条文档对象
+    update_one：更新一条文档对象
+    update_many：更新多条文档对象
+    delete_one：删除一条文档对象
+    delete_many：删除多条文档对象
+"""
+
+result_list = list(stu.find())  # find()的结果为可迭代对象
+
+# 使用投影，方法一致
+result_list1 = list(stu.find({'age': {'$gt': 18}}, {'name': 1, 'age': 1}))
+
+# sort方法由于和python的方法重复，所以以参数的形式使用，按年龄升序排列
+result_list2 = list(stu.find({'age': {'$gt': 18}}, {'name': 1, 'age': 1}, sort=[('age', 1)]))
+```
+
+Tips：
+
+```python
+"""
+python列表的排序
+"""
+list1 = [1, 12, 5, 13, 4]
+
+list1.sort(reverse=True)  # 此种排序会直接影响更改原始的列表
+sorted(list1)  # 此种排序不会更改原始列表，会产生新的列表
+
+# 对多重列表或者列表嵌入字典的排序
+list2 = [[1, 23], [12, 4]]
+list3 = [{'name': 'a', 'age': 10}, {'name': 'b', 'age': 6}, {'name': 'c', 'age': 12}]
+
+sorted(list2)  # 默认是对内部列表的第一个元素进行排序
+sorted(list2, key=lambda item: item[1])  # 添加参数，并使用lambda函数更改按下标1排序 
+sorted(list3, key=lambda item: item['age'])  # 对传入的每一个列表中的元素，取下标'age'
 ```
