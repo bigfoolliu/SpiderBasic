@@ -1,0 +1,11 @@
+
+thread = threading.Thread(target, args)
+
+pool = Pool()
+pool.map(func, list, list, ...)
+result= pool.apply(func, args)
+
+pool.close()
+pool.join()
+
+

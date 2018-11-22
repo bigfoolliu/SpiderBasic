@@ -1,0 +1,28 @@
+Selenium
+自动化的测试工具，可以将命令封装并直接在浏览器中运行
+
+PhantomJS
+无界面浏览器
+
+
+from selenium import webdriver
+driver = webdriver.Chrome()
+driver.get(url)  # 可以加载所有的文件，并获取到所有的数据
+
+
+# 在test.py中写python的测试用例
+import unittest
+
+
+class DouyuSpider(unittest.TestCase):
+    def setup(self):
+        pass
+
+    def testDouyu(self):
+        pass
+
+if __name__ == '__main__':
+    unittest.main()
+
+
+尽量不要写while True, 造成cpu占用过高，可以使用
