@@ -222,9 +222,10 @@ def parse(response):
     # 构造一个HTML的可操作对象
     html_obj = etree.HTML(html)
     # 通过xpath函数查找,返回的是一个列表
-    page_link_list = html_obj.xpath("//a[@class='j_th_tit ']/@href")
+    page_link_list = html_obj.xpath("//a[@class='j_th_tit ']/@href")  # 提取属性
+    page_text_list = html_obj.xpath("//a[@class='j_th_tit ']/text()")  # 提取文本
     
-    return page_link_list
+    return page_link_list, page_text_list
 ```
 
 **CSS 选择器：BeautifulSoup4**
